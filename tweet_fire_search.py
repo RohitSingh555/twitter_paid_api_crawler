@@ -25,27 +25,27 @@ if not TWITTER_API_KEY:
 # Constants
 US_STATES = [
     "Arizona", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-    # "Idaho", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine",
-    # "Maryland", "Michigan", "Minnesota", "Mississippi", "Montana", "Nebraska",
-    # "Nevada", "New Hampshire", "New Jersey", "New Mexico", "North Carolina",
-    # "North Dakota", "Ohio", "Oklahoma", "Oregon", "South Carolina", "Tennessee",
-    # "Texas", "US Virgin Islands", "Utah", "Vermont", "Virginia", "Washington",
-    # "West Virginia", "Wisconsin", "Wyoming", "DC"
+    "Idaho", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine",
+    "Maryland", "Michigan", "Minnesota", "Mississippi", "Montana", "Nebraska",
+    "Nevada", "New Hampshire", "New Jersey", "New Mexico", "North Carolina",
+    "North Dakota", "Ohio", "Oklahoma", "Oregon", "South Carolina", "Tennessee",
+    "Texas", "US Virgin Islands", "Utah", "Vermont", "Virginia", "Washington",
+    "West Virginia", "Wisconsin", "Wyoming", "DC"
 ]
 
 FIRE_KEYWORDS = [
     "house fire", "apartment complex", "store fire", "commercial fire",
-    # "restaurant fire", "warehouse fire", "business fire", "pipe burst",
-    # "building fire", "structure fire", "residential fire", "industrial fire"
-    # "factory fire", "office fire", "school fire", "church fire", "hospital fire",
-    # "hotel fire", "motel fire", "barn fire", "garage fire", "condo fire",
-    # "duplex fire", "mobile home fire", "trailer fire", "fire destroys",
-    # "fire damages", "fire guts", "fire ravages", "fire breaks out",
-    # "fire incident", "fire reported", "fire leaves", "fire causes damage",
-    # "fire evacuation", "firefighters battle blaze", "fire under investigation",
-    # "arson fire", "wildfire damages", "fire displaces", "fire ruins",
-    # "fire engulfs", "fire consumes building", "fire tears through",
-    # "fire rips through"
+    "restaurant fire", "warehouse fire", "business fire", "pipe burst",
+    "building fire", "structure fire", "residential fire", "industrial fire"
+    "factory fire", "office fire", "school fire", "church fire", "hospital fire",
+    "hotel fire", "motel fire", "barn fire", "garage fire", "condo fire",
+    "duplex fire", "mobile home fire", "trailer fire", "fire destroys",
+    "fire damages", "fire guts", "fire ravages", "fire breaks out",
+    "fire incident", "fire reported", "fire leaves", "fire causes damage",
+    "fire evacuation", "firefighters battle blaze", "fire under investigation",
+    "arson fire", "wildfire damages", "fire displaces", "fire ruins",
+    "fire engulfs", "fire consumes building", "fire tears through",
+    "fire rips through"
 ]
 
 FIRE_ACCOUNTS = [
@@ -71,7 +71,7 @@ def handle_rate_limit(response: requests.Response) -> None:
         print("Rate limited. Sleeping for 60 seconds...")
         time.sleep(60)
 
-def fetch_tweets(query: str, max_results: int = 10) -> List[Dict[str, Any]]:
+def fetch_tweets(query: str, max_results: int = 20) -> List[Dict[str, Any]]:
     """Fetch tweets from Kaito Twitter API for a given query."""
     url = "https://api.twitterapi.io/twitter/tweet/advanced_search"
     headers = {
