@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""
+Fire Detection Pipeline
+=======================
+Automated pipeline to search for fire-related tweets and verify incidents.
+
+This script runs the complete workflow:
+1. Search for fire-related tweets from the last 72 hours
+2. Verify incidents using AI
+3. Generate Excel and JSON reports
+4. Send results via email
+
+Usage:
+    python run_fire_detection.py
+"""
+
+import os
+import sys
+import subprocess
+import time
+from datetime import datetime
+from dotenv import load_dotenv
+import glob
+
+# Load environment variables from .env file
+load_dotenv()
+
+def check_environment():
+    """Check if all required environment variables are set"""
+    required_vars = [
+        "TWITTER_API_KEY",
+        "OPENAI_API_KEY",
+        "EMAIL_ADDRESS",
+        "EMAIL_PASSWORD"
+    ]
+    
+    missing_vars = []
+    for var in required_vars:
+        if not os.getenv(var):
+            missing_vars.append(var)
+    
+    if missing_vars:
+        print("❌ Missing required environment variables:")
+        for var in missing_vars:
+            print(f"   - {var}")
+        print("\nPlease set these in your .env file:")
+        print("TWITTER_API_KEY=your_twitter_api_key")
+        print("OPENAI_API_KEY=your_openai_api_key")
+        print("EMAIL_ADDRESS=your_email@gmail.com")
+        print("EMAIL_PASSWORD=your_app_password")
+        return False
+    
+    return True
+
+def run_tweet_search():
+    """Run the tweet search script"""
+    print("🔍 Step 1: Searching for fire-related tweets...")
+    print("=" * 50)
+    
+    try:
+        result = subprocess.run([sys.executable, "tweet_fire_search.py"], 
+                              capture_output=True, text=True, check=True)
+        print(result.stdout)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error running tweet search: {e}")
+        print(f"Error output: {e.stderr}")
+        return False
+
+def run_verification():
+    """Run the tweet verification script"""
+    print("\n🤖 Step 2: Verifying fire incidents with AI...")
+    print("=" * 50)
+    
+    try:
+        result = subprocess.run([sys.executable, "verify_tweets.py"], 
+                              capture_output=True, text=True, check=True)
+        print(result.stdout)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error running verification: {e}")
+        print(f"Error output: {e.stderr}")
+        return False
+
+def main():
+    """Main execution function"""
+    print("🔥 Fire Detection Pipeline")
+    print("=" * 50)
+    print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
+    
+    # Check environment
+    if not check_environment():
+        sys.exit(1)
+    
+    # Step 1: Tweet Search
+    if not run_tweet_search():
+        print("❌ Tweet search failed. Stopping pipeline.")
+        sys.exit(1)
+    
+    # Check if fire_tweets_72h_*.json was created
+    fire_tweets_files = glob.glob("fire_tweets_72h_*.json")
+    if not fire_tweets_files:
+        print("❌ No fire_tweets_72h_*.json files found after search. Stopping pipeline.")
+        sys.exit(1)
+    
+    # Step 2: Verification
+    if not run_verification():
+        print("❌ Verification failed. Stopping pipeline.")
+        sys.exit(1)
+    
+    print("\n🎉 Pipeline completed successfully!")
+    print("=" * 50)
+    print(f"Completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("\n📁 Check the 'output' folder for results")
+    print("📧 Results have been sent via email")
+
+if __name__ == "__main__":
+    main() 
