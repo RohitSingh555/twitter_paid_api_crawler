@@ -22,30 +22,38 @@ if not TWITTER_API_KEY:
     print("Please set your Twitter API key in a .env file or environment variable.")
     exit(1)
 
+# Get hours from environment variable, default to 72 if not set
+SEARCH_HOURS = os.getenv('SEARCH_HOURS', '72')
+try:
+    SEARCH_HOURS = int(SEARCH_HOURS)
+except ValueError:
+    print(f"Warning: Invalid SEARCH_HOURS value '{SEARCH_HOURS}', using default 72 hours")
+    SEARCH_HOURS = 72
+
 # Constants
 US_STATES = [
     "Arizona", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-    "Idaho", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine",
-    "Maryland", "Michigan", "Minnesota", "Mississippi", "Montana", "Nebraska",
-    "Nevada", "New Hampshire", "New Jersey", "New Mexico", "North Carolina",
-    "North Dakota", "Ohio", "Oklahoma", "Oregon", "South Carolina", "Tennessee",
-    "Texas", "US Virgin Islands", "Utah", "Vermont", "Virginia", "Washington",
-    "West Virginia", "Wisconsin", "Wyoming", "DC"
+    # "Idaho", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine",
+    # "Maryland", "Michigan", "Minnesota", "Mississippi", "Montana", "Nebraska",
+    # "Nevada", "New Hampshire", "New Jersey", "New Mexico", "North Carolina",
+    # "North Dakota", "Ohio", "Oklahoma", "Oregon", "South Carolina", "Tennessee",
+    # "Texas", "US Virgin Islands", "Utah", "Vermont", "Virginia", "Washington",
+    # "West Virginia", "Wisconsin", "Wyoming", "DC"
 ]
 
 FIRE_KEYWORDS = [
     "house fire", "apartment complex", "store fire", "commercial fire",
-    "restaurant fire", "warehouse fire", "business fire", "pipe burst",
-    "building fire", "structure fire", "residential fire", "industrial fire"
-    "factory fire", "office fire", "school fire", "church fire", "hospital fire",
-    "hotel fire", "motel fire", "barn fire", "garage fire", "condo fire",
-    "duplex fire", "mobile home fire", "trailer fire", "fire destroys",
-    "fire damages", "fire guts", "fire ravages", "fire breaks out",
-    "fire incident", "fire reported", "fire leaves", "fire causes damage",
-    "fire evacuation", "firefighters battle blaze", "fire under investigation",
-    "arson fire", "wildfire damages", "fire displaces", "fire ruins",
-    "fire engulfs", "fire consumes building", "fire tears through",
-    "fire rips through"
+    # "restaurant fire", "warehouse fire", "business fire", "pipe burst",
+    # "building fire", "structure fire", "residential fire", "industrial fire"
+    # "factory fire", "office fire", "school fire", "church fire", "hospital fire",
+    # "hotel fire", "motel fire", "barn fire", "garage fire", "condo fire",
+    # "duplex fire", "mobile home fire", "trailer fire", "fire destroys",
+    # "fire damages", "fire guts", "fire ravages", "fire breaks out",
+    # "fire incident", "fire reported", "fire leaves", "fire causes damage",
+    # "fire evacuation", "firefighters battle blaze", "fire under investigation",
+    # "arson fire", "wildfire damages", "fire displaces", "fire ruins",
+    # "fire engulfs", "fire consumes building", "fire tears through",
+    # "fire rips through"
 ]
 
 FIRE_ACCOUNTS = [
@@ -78,10 +86,10 @@ def fetch_tweets(query: str, max_results: int = 20) -> List[Dict[str, Any]]:
         "X-API-Key": TWITTER_API_KEY
     }
     params = {
-        "query": f"{query} within_time:72h",
+        "query": f"{query} within_time:{SEARCH_HOURS}h",
         "queryType": "Latest"
     }
-    
+    print(SEARCH_HOURS)
     try:
         response = requests.get(url, headers=headers, params=params)
         
@@ -110,7 +118,7 @@ def fetch_user_tweets(username: str, max_results: int = 20) -> List[Dict[str, An
         "X-API-Key": TWITTER_API_KEY
     }
     params = {
-        "query": f"from:{username} within_time:72h",
+        "query": f"from:{username} within_time:{SEARCH_HOURS}h",
         "queryType": "Latest"
     }
     

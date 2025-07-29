@@ -59,12 +59,10 @@ def run_tweet_search():
     
     try:
         result = subprocess.run([sys.executable, "tweet_fire_search.py"], 
-                              capture_output=True, text=True, check=True)
-        print(result.stdout)
+                              check=True)
         return True
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running tweet search: {e}")
-        print(f"Error output: {e.stderr}")
         return False
 
 def run_verification():
@@ -74,12 +72,10 @@ def run_verification():
     
     try:
         result = subprocess.run([sys.executable, "verify_tweets.py"], 
-                              capture_output=True, text=True, check=True)
-        print(result.stdout)
+                              check=True)
         return True
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running verification: {e}")
-        print(f"Error output: {e.stderr}")
         return False
 
 def main():

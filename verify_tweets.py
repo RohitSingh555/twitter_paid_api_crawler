@@ -306,9 +306,8 @@ def verify_and_save_tweets(cleaned_json_path, output_dir="output"):
                 fire_score = get_fire_related_score(text)
                 verified_at = datetime.now().isoformat()
                 
-                # Create entry with only the specified columns
+                # Create entry with only the specified columns (excluding tweet_id)
                 entry = {
-                    'tweet_id': tweet_id,
                     'title': text[:100] + "..." if len(text) > 100 else text,
                     'content': text,
                     'published_date': created_at,
