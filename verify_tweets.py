@@ -16,10 +16,27 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from utils import send_to_api
+import email.utils
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 client = openai
+
+def parse_twitter_date(date_string):
+    """Parse Twitter-style date format and convert to ISO format"""
+    if not date_string:
+        return ""
+    
+    try:
+        # Parse the Twitter-style date format: "Mon Jul 28 17:12:07 +0000 2025"
+        parsed_date = email.utils.parsedate_to_datetime(date_string)
+        # Convert to ISO format
+        return parsed_date.isoformat()
+    except Exception as e:
+        print(f"Warning: Could not parse date '{date_string}': {e}")
+        # Return original string if parsing fails
+        return date_string
 
 def get_fire_related_score(content):
     """Get a score from 0-10 indicating how fire-related the tweet is"""
@@ -192,8 +209,16 @@ def send_email_results(excel_path, json_path, verified_count):
         
         # Recipient emails
         recipient_emails = [
-            # "info@theagilemorph.com",
-            "forrohitsingh99@gmail.com"
+            "info@theagilemorph.com",
+            "forrohitsingh99@gmail.com",
+            "unipaney@dhaninfo.biz",
+            "u@agilemorph.biz", 
+            "rchakraborty@dhaninfo.biz",
+            "npalliwal@dhaninfo.biz",
+            "lalit.shukla@dhaninfo.biz",
+            "rnagmote@dhaninfo.biz",
+            "apandey@dhaninfo.biz",
+            "careports@dhaninfo.biz"
         ]
         
         # Create message
@@ -202,22 +227,189 @@ def send_email_results(excel_path, json_path, verified_count):
         msg['To'] = ", ".join(recipient_emails)
         msg['Subject'] = f"Fire Incident Verification Results - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
         
-        # Email body
-        body = f"""
-        Fire Incident Verification Complete!
-        
-        Summary:
-        - Total verified fire incidents: {verified_count}
-        - Verification completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        
-        Files attached:
-        1. Excel file with detailed results
-        2. JSON file with raw data
-        
-        This automated report contains verified fire-related tweets from the last 72 hours.
+        # Email body with HTML formatting and AgileMorph branding
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                }}
+                .header {{
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 30px;
+                    text-align: center;
+                    border-radius: 10px 10px 0 0;
+                    margin-bottom: 0;
+                }}
+                .header h1 {{
+                    margin: 0;
+                    font-size: 28px;
+                    font-weight: 600;
+                }}
+                .content {{
+                    background: white;
+                    padding: 30px;
+                    border-radius: 0 0 10px 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }}
+                .summary-box {{
+                    background: #f8f9fa;
+                    border-left: 4px solid #667eea;
+                    padding: 20px;
+                    margin: 20px 0;
+                    border-radius: 5px;
+                }}
+                .summary-box h3 {{
+                    margin-top: 0;
+                    color: #667eea;
+                    font-size: 18px;
+                }}
+                .stats {{
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 20px 0;
+                }}
+                .stat-item {{
+                    text-align: center;
+                    flex: 1;
+                    padding: 15px;
+                    background: #f8f9fa;
+                    margin: 0 5px;
+                    border-radius: 5px;
+                }}
+                .stat-number {{
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #667eea;
+                }}
+                .stat-label {{
+                    font-size: 12px;
+                    color: #666;
+                    text-transform: uppercase;
+                }}
+                .footer {{
+                    text-align: center;
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+                }}
+                .brand-link {{
+                    display: inline-block;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    text-decoration: none;
+                    padding: 12px 25px;
+                    border-radius: 25px;
+                    font-weight: 600;
+                    margin: 10px 0;
+                    transition: transform 0.2s;
+                }}
+                .brand-link:hover {{
+                    transform: translateY(-2px);
+                }}
+                .attachments {{
+                    background: #e8f4fd;
+                    border: 1px solid #bee5eb;
+                    border-radius: 5px;
+                    padding: 15px;
+                    margin: 20px 0;
+                }}
+                .attachments h4 {{
+                    margin-top: 0;
+                    color: #0c5460;
+                }}
+                .attachments ul {{
+                    margin: 10px 0;
+                    padding-left: 20px;
+                }}
+                .attachments li {{
+                    margin: 5px 0;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🔥 Fire Incident Detection Report</h1>
+                <p>Automated AI-Powered Fire Incident Verification</p>
+            </div>
+            
+            <div class="content">
+                <div class="summary-box">
+                    <h3>📊 Executive Summary</h3>
+                    <p>Your automated fire incident detection system has completed its analysis of social media data from the last 72 hours.</p>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">{verified_count}</div>
+                        <div class="stat-label">Verified Incidents</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{datetime.now().strftime('%H:%M')}</div>
+                        <div class="stat-label">Completion Time</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{datetime.now().strftime('%m/%d')}</div>
+                        <div class="stat-label">Report Date</div>
+                    </div>
+                </div>
+                
+                <div class="attachments">
+                    <h4>📎 Attached Files</h4>
+                    <ul>
+                        <li><strong>Excel Report:</strong> Detailed analysis with verified fire incidents</li>
+                        <li><strong>JSON Data:</strong> Raw data for further processing</li>
+                    </ul>
+                </div>
+                
+                <p><strong>Report Coverage:</strong> This automated analysis covers fire-related social media activity across all 50 U.S. states, including verified incidents with structural damage potential.</p>
+                
+                <div class="footer">
+                    <p><em>Powered by advanced AI automation and real-time social media monitoring</em></p>
+                    <a href="https://theagilemorph.com/" class="brand-link" target="_blank">
+                        🚀 Powered by AgileMorph
+                    </a>
+                    <p style="font-size: 12px; color: #666; margin-top: 15px;">
+                        <strong>AgileMorph</strong> - Let AI seamlessly elevate your brand<br>
+                        AI Automation • Web Development • Digital Marketing
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
         """
         
-        msg.attach(MIMEText(body, 'plain'))
+        # Create both HTML and plain text versions
+        msg.attach(MIMEText(html_body, 'html'))
+        
+        # Plain text fallback
+        plain_body = f"""
+Fire Incident Verification Complete!
+
+Summary:
+- Total verified fire incidents: {verified_count}
+- Verification completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+Files attached:
+1. Excel file with detailed results
+2. JSON file with raw data
+
+This automated report contains verified fire-related tweets from the last 72 hours.
+
+Powered by AgileMorph - https://theagilemorph.com/
+        """
+        
+        msg.attach(MIMEText(plain_body, 'plain'))
         
         # Attach Excel file
         if os.path.exists(excel_path):
@@ -252,6 +444,14 @@ def send_email_results(excel_path, json_path, verified_count):
         server.quit()
         
         print(f"[EMAIL] Email sent successfully to {len(recipient_emails)} recipients!")
+        
+        # Send data to API endpoint
+        print(f"\n[API] Sending data to API endpoint...")
+        api_success = send_to_api(excel_path, json_path, verified_count)
+        if api_success:
+            print(f"[API] Data successfully sent to API endpoint")
+        else:
+            print(f"[API] Failed to send data to API endpoint")
         
     except Exception as e:
         print(f"[ERROR] Error sending email: {e}")
@@ -290,7 +490,9 @@ def verify_and_save_tweets(cleaned_json_path, output_dir="output"):
             tweet_id = tweet.get('id', f"tweet_{i}")
             text = tweet.get('text', '')
             url = tweet.get('url', '')
-            created_at = tweet.get('createdAt', '')
+            created_at_raw = tweet.get('createdAt', '')
+            # Parse and format the date properly
+            created_at = parse_twitter_date(created_at_raw)
             author = tweet.get('author', {})
             username = author.get('userName', 'Unknown') if author else 'Unknown'
             
@@ -342,6 +544,32 @@ def verify_and_save_tweets(cleaned_json_path, output_dir="output"):
     
     return verified_count, excel_path, live_json_path
 
+def fix_existing_json_dates(json_file_path):
+    """Fix date formats in existing JSON files"""
+    try:
+        with open(json_file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        fixed_count = 0
+        for item in data:
+            if 'published_date' in item and item['published_date']:
+                original_date = item['published_date']
+                fixed_date = parse_twitter_date(original_date)
+                if fixed_date != original_date:
+                    item['published_date'] = fixed_date
+                    fixed_count += 1
+        
+        if fixed_count > 0:
+            # Save the fixed data back to the file
+            with open(json_file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            print(f"[FIXED] Updated {fixed_count} date entries in {json_file_path}")
+        else:
+            print(f"[INFO] No date fixes needed in {json_file_path}")
+            
+    except Exception as e:
+        print(f"Error fixing dates in {json_file_path}: {e}")
+
 def main():
     """Main execution function"""
     import sys
@@ -381,6 +609,10 @@ def main():
     
     print(f"[START] Starting tweet verification process...")
     print(f"[FILE] Input file: {json_path}")
+    
+    # Fix date formats in the input file if needed
+    print(f"[DATE] Checking and fixing date formats...")
+    fix_existing_json_dates(json_path)
     
     # Run verification
     verified_count, excel_path, json_path = verify_and_save_tweets(json_path)
